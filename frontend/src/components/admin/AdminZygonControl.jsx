@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { Button } from "../../helper/Button";
-import { Input } from "../../helper/Input";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // ✅ Import styles
 import { Link } from "react-router-dom";
 
 export const AdminZygonControl = () => {
@@ -11,11 +10,12 @@ export const AdminZygonControl = () => {
     Year: "",
     WinnersName: "",
     Position: "",
+    PonintSequre: "", // ✅ Matches backend typo
   });
   const [error, setError] = useState("");
 
-  const predefinedEvents = ["Event 1", "Event 2", "Event 3", "Event 4"]; // Add more event names here
-  const years = [1, 2, 3, 4];
+  const predefinedEvents = ["Event 1", "Event 2", "Event 3", "Event 4"];
+  const years = [2021, 2022, 2023, 2024];
   const positions = [1, 2, 3];
 
   const handleChange = (e) => {
@@ -25,20 +25,50 @@ export const AdminZygonControl = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (Object.values(form).some((value) => value.trim() === "")) {
+      setError("All fields are required.");
+      toast.error("All fields are required!"); // ✅ Show error toast
+      return;
+    }
+
     try {
-      await axios.post("http://localhost:8000/api/v1/zygonInfo/ZygonTable", form);
-      toast.success("Zygon Table Information added successfully!");
-      setForm({ EventName: "", Year: "", WinnersName: "", Position: "" });
+      await axios.post(
+        "https://backen-zygon.onrender.com/api/v1/zygonInfo/PostZygonTable",
+        form,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      toast.success("Zygon Table Information added successfully!", { autoClose: 3000 }); // ✅ Success toast
+      setForm({
+        EventName: "",
+        Year: "",
+        WinnersName: "",
+        Position: "",
+        PonintSequre: "",
+      });
     } catch (err) {
-      setError(err.response?.data?.message || "Something went wrong");
+      const errorMsg = err.response?.data?.message || "Something went wrong";
+      setError(errorMsg);
+      toast.error(errorMsg); // ✅ Error toast
     }
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-xl font-bold mb-2">Admin: Add Zygon Entry</h2>
-      {error && <p className="text-red-500">{error}</p>}
-      <form onSubmit={handleSubmit} className="grid gap-2">
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+        Admin: Add Zygon Entry
+      </h2>
+
+      <ToastContainer /> {/* ✅ Ensures toasts are displayed */}
+
+      {error && <p className="text-red-600 mb-2">{error}</p>}
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         {/* Event Name Dropdown */}
         <div>
           <label className="block text-sm font-medium">Event Name</label>
@@ -46,7 +76,7 @@ export const AdminZygonControl = () => {
             name="EventName"
             value={form.EventName}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded-md"
             required
           >
             <option value="">Select Event</option>
@@ -65,7 +95,7 @@ export const AdminZygonControl = () => {
             name="Year"
             value={form.Year}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded-md"
             required
           >
             <option value="">Select Year</option>
@@ -78,13 +108,18 @@ export const AdminZygonControl = () => {
         </div>
 
         {/* Winner's Name Input */}
-        <Input
-          placeholder="Winner's Name"
-          name="WinnersName"
-          value={form.WinnersName}
-          onChange={handleChange}
-          required
-        />
+        <div>
+          <label className="block text-sm font-medium">Winner's Name</label>
+          <input
+            type="text"
+            name="WinnersName"
+            value={form.WinnersName}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md"
+            placeholder="Enter Winner's Name"
+            required
+          />
+        </div>
 
         {/* Position Dropdown */}
         <div>
@@ -93,7 +128,7 @@ export const AdminZygonControl = () => {
             name="Position"
             value={form.Position}
             onChange={handleChange}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded-md"
             required
           >
             <option value="">Select Position</option>
@@ -105,12 +140,32 @@ export const AdminZygonControl = () => {
           </select>
         </div>
 
+        {/* Point Score Input (using PonintSequre as per backend) */}
+        <div>
+          <label className="block text-sm font-medium">Ponint Sequre</label>
+          <input
+            type="number"
+            name="PonintSequre" // ✅ Match backend typo
+            value={form.PonintSequre}
+            onChange={handleChange}
+            className="w-full p-2 border rounded-md"
+            placeholder="Enter Score"
+            required
+          />
+        </div>
+
         {/* Submit Button */}
-        <Button type="submit">Submit</Button>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 rounded-md transition"
+        >
+          Submit
+        </button>
       </form>
 
-      <div className="mt-4">
-        <p>
+      {/* Link to Update Page */}
+      <div className="mt-4 text-center">
+        <p className="text-sm">
           Already have an entry?{" "}
           <Link to="/update" className="text-blue-500 underline">
             Update Zygon Entry
