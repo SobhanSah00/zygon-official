@@ -12,7 +12,7 @@ const Zygon = () => {
 
         <div className=" bg-[url('./invert2.png')] cookie-regular w-screen h-screen bg-cover bg-center text-black md:px-[400px] md:py[50px]"  >
             <div className="!flex ps-3 pt-6">
-                <div align="center" className="text-6xl md:text-7xl !text-center" style={{ writingMode: "vertical-rl", fontFamily: "Carnival" }}>
+                <div className="text-6xl md:text-7xl !text-center" style={{ writingMode: "vertical-rl", fontFamily: "Carnival" }}>
                     #2k25
                 </div>
                 <div className='animate__animated animate__fadeInLeft wow'>
